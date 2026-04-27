@@ -1,0 +1,48 @@
+name: Terraform Infraestructura
+
+on:
+  push:
+    branches: [main, "feature/**", "fix/"]
+    paths: ["infra/terraform"]
+  pull_request:
+    branches: [main, "feature/**", "fix/"]
+    paths: ["infra/terraform"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+      - name: Configurar credenciales de AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Verificar identidad (Test)
+        run: |
+          aws sts get-caller-identity
+          echo "✅ Autenticación exitosa con OIDC"
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+      - name: Iniciar Terraform
+        run: terraform init
+        working-directory: infra/terraform
+      - name: Planificar Terraform
+        run: terraform plan
+        working-directory: infra/terraform
+      - name: Aplicar Terraform
+        run: terraform apply
+        working-directory: infra/terraform
+        if: ${{ github.event_name == 'push' }}
+      - name: dormir
+        run: sleep 300s
+      - name: destruir infraestructura
+        run: terraform destroy
+        working-directory: infra/terraform
+        if: ${{ github.event_name == 'push' }}
