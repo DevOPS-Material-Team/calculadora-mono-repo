@@ -80,3 +80,4 @@ kubectl apply -k k8s/overlays/prod
 - **Frontend:** @mau-m
 - **Infraestructura:** @MMCJUAREZ, @hernandev96
 # Verificando cambios de jluisqf test 2
+
