@@ -20,13 +20,11 @@ jobs:
 
       - name: Test container starts
         run: |
-          # Usamos un nginx dummy que no necesita backend
           docker run -d --name fe-test \
             -e BACKEND_HOST=127.0.0.1 \
             frontend-test
-          # Esperar a que Nginx arranque completamente
           for i in 1 2 3 4 5; do
-            if docker exec fe-test wget -q --spider http://localhost/ 2>/dev/null; then
+            if docker exec fe-test wget -q --spider http://127.0.0.1/ 2>/dev/null; then
               echo "Frontend container OK"
               docker stop fe-test
               exit 0
